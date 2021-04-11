@@ -18,7 +18,4 @@ node{
 	 sh 'docker push rambabuippili/socker-api:0.0.1'
  }
 
-
  }
-
-}
