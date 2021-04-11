@@ -1,0 +1,142 @@
+<html>
+<head>
+<script	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.js"></script>
+<title>Soccer API Demo</title>
+<script type="text/javascript">
+	var app = angular.module("FootballStandingManagement", []);	app.controller("FootballStandingController", function($scope, $http) {
+
+		fetchCountries();
+
+		function fetchCountries() {
+			$http({
+				method : 'GET',
+				url : 'http://localhost:8080/soccer/getCountries'
+			}).then(function successCallback(response) {
+				$scope.countries = response.data;
+			}, function errorCallback(response) {
+				console.log(response.statusText);
+			});
+
+		}
+
+		  $scope.getLeagues = function(country) {
+			    $http({
+					method : 'GET',
+					url : 'http://localhost:8080/soccer/getLeagues?country_id='+ country.country_id
+				}).then(function successCallback(response) {
+					$scope.leagues = response.data;
+				}, function errorCallback(response) {
+					console.log(response.statusText);
+				});
+			  };
+			  
+			  $scope.getTeams = function(league) {
+				    $http({
+						method : 'GET',
+						url : 'http://localhost:8080/soccer/getTeams?league_id='+ league.league_id
+					}).then(function successCallback(response) {
+						$scope.teams = response.data;
+					}, function errorCallback(response) {
+						console.log(response.statusText);
+					});
+				  };
+			
+				  $scope.getStandings = function(team) {
+					    $http({
+							method : 'GET',
+							url : 'http://localhost:8080/soccer/standings?countryName='+ $scope.country.country_name+'&leagueName='+ $scope.league.league_name+'&teamName='+ team.team_name
+						}).then(function successCallback(response) {
+							$scope.standings = response.data;
+							$scope.flag=true;
+						}, function errorCallback(response) {
+							console.log(response.statusText);
+						});
+					  };
+		
+		function _error(response) {
+			console.log(response.statusText);
+		}
+
+	});
+</script>
+<style>
+table {
+	font-family: "Helvetica Neue", Helvetica, sans-serif;
+	width: 50%;
+}
+caption {
+	text-align: left;
+	color: silver;
+	font-weight: bold;
+	text-transform: uppercase;
+	padding: 5px;
+}
+
+th {
+	background: gray;
+	color: white;
+}
+
+tbody tr:nth-child(even) {
+	background: WhiteSmoke;
+}
+
+tfoot {
+	background: SeaGreen;
+	color: white;
+	text-align: right;
+}
+
+td, th {
+	border: 0px solid gray;
+	width: 25%;
+	text-align: left;
+	padding: 5px 10px;
+}
+</style>
+<head>
+<body ng-app="FootballStandingManagement"
+	ng-controller="FootballStandingController" onload="fetchCountries()">
+	<h1>Foot Ball League</h1>
+	<div>
+		<table>
+			<tr>
+				<td><label for="county">Country : </label> <select
+					ng-model="country"
+					ng-options="country.country_name for country in countries"
+					ng-change="getLeagues(country)">
+						<option value=''>Select</option>
+				</select></td>
+				<td><label for="league">League : </label> <select
+					ng-model="league"
+					ng-options="league.league_name for league in leagues"
+					ng-change="getTeams(league)">
+						<option value="">Select</option>
+				</select></td>
+				<td><label for="team">Team : </label> <select ng-model="team"
+					ng-options="team.team_name for team in teams"
+					ng-change="getStandings(team)">
+						<option value="">Select</option>
+				</select></td>
+			</tr>
+		</table>
+	</div>
+	<div ng-show="flag">
+		<table>
+			<tr>
+				<th>Country</th>			
+				<th>League</th>
+				<th>Team</th>
+				<th>Overall Position</th>
+			</tr>
+			<tr>
+				<td>{{standings.countryInfo}}</td>
+				<td>{{standings.leagueInfo}}</td>
+				<td>{{standings.teamInfo}}</td>
+				<td>{{standings.overallPosition}}</td>
+			</tr>
+		</table>
+	</div>
+
+</body>
+</html>
