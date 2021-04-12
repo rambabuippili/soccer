@@ -1,20 +1,48 @@
 pipeline {
-  agent any
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+            echo 'Building..'
+	            withMaven(){
+	            sh mvn clean install
+	            }
+                
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing..'
+            }
+        }
+		stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t rambabuippili/socker-api:0.0.1 .'
+            }
+        }
+        stage('Push To Docker') {
+            steps {
+             withCredentials([string(credentialsId: 'github-pwd', variable: 'dockerHubPwd')]) {
+				sh "docker login -u rambabuippili -p ${dockerHubPwd}"
+					}
+				sh 'docker push rambabuippili/socker-api:0.0.1'
+            }
+        }
+		stage('Run') {
+            steps {
+             withCredentials([string(credentialsId: 'github-pwd', variable: 'dockerHubPwd')]) {
+				sh "docker login -u rambabuippili -p ${dockerHubPwd}"
+					}
+				sh 'docker push rambabuippili/socker-api:0.0.1'
+            }
+        }
+		stage('Run') {
+            steps {
+			sshagent(['dev-server']) {
+			sh "ssh -o StrictHostKeyChecking=no ubuntu@18.217.63.227 docker run -p 8080:8080 -d --name socker-api rambabuippili/socker-api:0.0.1"
+			}
+            }
+        }
+    }
+}
 
- stage('Maven Package'){
-	sh 'mvn clean package'
-	sh 'mv target/soccer-api*.jar target/socker-api.jar'
- }
- 
- stage('Build Docker Imager'){
-   sh 'docker build -t rambabuippili/socker-api:0.0.1 .'
- }
- 
- stage('Push to Docker Hub'){ 
-	 withCredentials([string(credentialsId: 'github-pwd', variable: 'dockerHubPwd')]) {
-        sh "docker login -u rambabuippili -p ${dockerHubPwd}"
-     }
-	 sh 'docker push rambabuippili/socker-api:0.0.1'
- }
-
- }
