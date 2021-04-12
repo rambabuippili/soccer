@@ -1,8 +1,6 @@
 pipeline {
-    agent { docker { image 'maven:3.3.3' } }
- stage('Git Checkout'){
-	git 'https://github.com/rambabuippili/soccer.git'  
- }
+  agent any
+
  stage('Maven Package'){
 	sh 'mvn clean package'
 	sh 'mv target/soccer-api*.jar target/socker-api.jar'
