@@ -28,7 +28,7 @@ pipeline {
 				sh 'docker push rambabuippili/socker-api:0.0.1'
             }
         }
-		stage('Run') {
+		stage('Run on Docker') {
             steps {
              withCredentials([string(credentialsId: 'github-pwd', variable: 'dockerHubPwd')]) {
 				sh "docker login -u rambabuippili -p ${dockerHubPwd}"
